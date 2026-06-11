@@ -6647,18 +6647,18 @@ ${docStyles}
             showToast('⏳ Menyiapkan backup...');
 
             const [v, b, m, w, u, ri, riItems, trx, trxItems, pel, pengaturan] = await Promise.all([
-                sbClient.from('vendor').select('*').order('id'),
-                sbClient.from('brand').select('*').order('id'),
-                sbClient.from('model').select('*').order('id'),
-                sbClient.from('warna').select('*').order('id'),
-                sbClient.from('ukuran').select('*').order('id'),
-                sbClient.from('riwayat_input').select('*').order('id'),
-                sbClient.from('riwayat_input_item').select('*').order('id'),
-                sbClient.from('transaksi').select('*').order('id'),
-                sbClient.from('transaksi_item').select('*').order('id'),
-                sbClient.from('pelunasan').select('*').order('id').catch(() => ({ data: [] })),
-                sbClient.from('pengaturan').select('*'),
-            ]);
+    sbClient.from('vendor').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('brand').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('model').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('warna').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('ukuran').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('riwayat_input').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('riwayat_input_item').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('transaksi').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('transaksi_item').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('pelunasan').select('*').order('id', { ascending: true }).catch(() => ({ data: [] })),
+    sbClient.from('pengaturan').select('*').catch(() => ({ data: [] })),
+]);
 
             const backupData = {
                 _meta: {
