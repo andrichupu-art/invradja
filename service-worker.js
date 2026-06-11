@@ -4,7 +4,7 @@
 
 const CACHE_NAME = 'radja-production-v4';
 const STATIC_CACHE = 'radja-static-v4';
-const BASE = '/inventory';
+const BASE = '/invradja';
 
 const STATIC_ASSETS = [
     BASE + '/manifest.json',
