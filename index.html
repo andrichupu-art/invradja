@@ -14,11 +14,41 @@
     <!-- Cegah browser Android/Chrome memunculkan toolbar pencarian -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-    <link rel="apple-touch-icon" href="/icon-192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+    <link rel="apple-touch-icon" href="/inventory/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/inventory/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/inventory/icon-512.png">
 
     <script>
+        // ===== PWA INSTALL PROMPT =====
+        let deferredInstallPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            const btn = document.getElementById('btn-install-pwa');
+            if (btn) btn.style.display = 'flex';
+            console.log('✅ Install prompt ready');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredInstallPrompt = null;
+            const btn = document.getElementById('btn-install-pwa');
+            if (btn) btn.style.display = 'none';
+            console.log('✅ App installed');
+        });
+
+        window.triggerInstall = async function() {
+            if (!deferredInstallPrompt) {
+                alert('Prompt install tidak tersedia. Coba buka lewat Chrome dan pastikan belum di-install.');
+                return;
+            }
+            deferredInstallPrompt.prompt();
+            const { outcome } = await deferredInstallPrompt.userChoice;
+            console.log('Install outcome:', outcome);
+            if (outcome === 'accepted') deferredInstallPrompt = null;
+        };
+
+        // ===== SERVICE WORKER =====
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/inventory/service-worker.js')
@@ -459,7 +489,10 @@
                     <div class="h-[64px] flex flex-col justify-center px-4 flex-grow z-10 relative">
                         <h1 class="text-xl font-black text-[#15171e] leading-none tracking-wide mb-1">DASHBOARD <span class="text-white">STOK</span></h1>
                         <h2 class="display-brand-name text-[9px] font-bold text-[#15171e] tracking-[0.15em] leading-none uppercase">RADJA PRODUCTION</h2>
-                        <span id="app-version-badge" class="absolute inset-y-0 right-2 text-[#15171e] select-none flex flex-col items-end justify-center leading-none gap-0.5" style="font-family:'Poppins',sans-serif;" title="Versi Aplikasi"><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">v1.1.0</span><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">RADJA PRODUCTION</span><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">@2026</span></span>
+                        <span id="app-version-badge" class="absolute inset-y-0 right-2 text-[#15171e] select-none flex flex-col items-end justify-center leading-none gap-0.5" style="font-family:'Poppins',sans-serif;" title="Versi Aplikasi">
+                            <button id="btn-install-pwa" onclick="triggerInstall()" title="Install App" style="display:none;align-items:center;gap:4px;background:rgba(0,0,0,0.18);border:1.5px solid rgba(0,0,0,0.25);border-radius:6px;padding:3px 8px;font-size:9px;font-weight:800;color:#15171e;cursor:pointer;margin-bottom:2px;letter-spacing:0.03em;"><i class="fa fa-download" style="font-size:9px;"></i> INSTALL</button>
+                            <span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">v1.2.0</span><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">RADJA PRODUCTION</span><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">@2026</span>
+                        </span>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
