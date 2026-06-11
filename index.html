@@ -1962,8 +1962,8 @@ function hitungStokBrand(brandId) {
 }
 
 // Hitung stok bersih = stok DB - qty yang sudah dipakai di baris lain dalam form transaksi aktif
-function hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, kecualiRowId, brandNama) {
-    let stokDB = hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama);
+function hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, kecualiRowId, brandNama, brandId) {
+    let stokDB = hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama, brandId);
     
     const mTarget = (modelNama || "").trim().toUpperCase();
     const wTarget = (warnaNama || "").trim().toUpperCase();
@@ -1990,17 +1990,25 @@ function hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, kecualiRowId, br
     return stokDB;
 }
 
-function hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama) {
+function hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama, brandId) {
     const mNama = (modelNama || "").trim().toUpperCase();
     const wNama = (warnaNama || "").trim().toUpperCase();
     const uNama = (ukuranNama || "").trim().toUpperCase();
     const bNama = (brandNama || "").trim().toUpperCase();
     const key = `${mNama}||${wNama}||${uNama}`;
     
+    // Helper: cek apakah record d cocok dengan brand yang diminta
+    // Prioritaskan lookup by ID (robust), fallback ke nama string
+    function brandMatch(d) {
+        if (!bNama && !brandId) return true; // tidak ada filter brand
+        const b = masterData.brand.find(b => (b.nama || "").trim().toUpperCase() === (d.brand || "").trim().toUpperCase());
+        if (brandId) return b && b.id == brandId;
+        return b ? b.id == (masterData.brand.find(x => (x.nama||"").trim().toUpperCase() === bNama)?.id) : (d.brand || "").trim().toUpperCase() === bNama;
+    }
+    
     let stok = 0;
     appData.riwayatInput.forEach(d => {
-        // Filter brand jika brandNama diberikan
-        if (bNama && (d.brand || "").trim().toUpperCase() !== bNama) return;
+        if (!brandMatch(d)) return;
         d.items.forEach(item => {
             const currentModel = (d.model || "").trim().toUpperCase();
             const currentWarna = (item.warna || "").trim().toUpperCase();
@@ -2012,8 +2020,7 @@ function hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama) {
         });
     });
     appData.riwayatTransaksi.forEach(d => {
-        // Filter brand jika brandNama diberikan
-        if (bNama && (d.brand || "").trim().toUpperCase() !== bNama) return;
+        if (!brandMatch(d)) return;
         d.items.forEach(item => {
             const currentModel = (d.model || "").trim().toUpperCase();
             const currentWarna = (item.warna || "").trim().toUpperCase();
@@ -2030,6 +2037,7 @@ function hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama) {
 function updateSSK(tab, rowId) {
     const modelNama = tab === 'input' ? inputState.modelNama : trxState.modelNama;
     const brandNama = tab === 'input' ? inputState.brandNama : trxState.brandNama;
+    const brandId = tab === 'input' ? inputState.brandId : trxState.brandId;
     const warnaEl = document.getElementById(`${tab}-warna-label-${rowId}`);
     const ukuranEl = document.getElementById(`${tab}-ukuran-label-${rowId}`);
     
@@ -2047,7 +2055,7 @@ function updateSSK(tab, rowId) {
         return;
     }
     
-    const stokSaatIni = hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama);
+    const stokSaatIni = hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama, brandId);
     
     if (tab === 'input') {
         if (stokSaatIni <= 0) {
@@ -2063,7 +2071,7 @@ function updateSSK(tab, rowId) {
     const qtyEl = document.getElementById(`${tab}-qty-${rowId}`);
     let qty = parseInt(qtyEl?.value) || 0;
     
-    const stokEfektif = hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, rowId, brandNama);
+    const stokEfektif = hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, rowId, brandNama, brandId);
     const maxStok = Math.max(0, stokEfektif);
     
     if (qty > maxStok) {
@@ -3472,14 +3480,14 @@ function updateSSK(tab, rowId) {
         let warnaList = masterData.warna;
         if (tab === 'trx' && trxState.modelNama) {
             warnaList = masterData.warna.filter(w => {
-                return masterData.ukuran.some(u => hitungStokEfektifTrx(trxState.modelNama, w.nama, u.nama, rowId, trxState.brandNama) > 0);
+                return masterData.ukuran.some(u => hitungStokEfektifTrx(trxState.modelNama, w.nama, u.nama, rowId, trxState.brandNama, trxState.brandId) > 0);
             });
             if (warnaList.length === 0) { showAlert('Tidak ada warna dengan stok tersedia untuk model ini.', {type:'warning'}); return; }
         }
         
         if (tab === 'input' && inputState.mode === 'retur' && inputState.modelNama) {
             warnaList = masterData.warna.filter(w => {
-                return masterData.ukuran.some(u => hitungStokItem(inputState.modelNama, w.nama, u.nama, inputState.brandNama) > 0);
+                return masterData.ukuran.some(u => hitungStokItem(inputState.modelNama, w.nama, u.nama, inputState.brandNama, inputState.brandId) > 0);
             });
             if (warnaList.length === 0) { showAlert('Tidak ada warna dengan stok tersedia untuk model ini.', {type:'warning'}); return; }
         }
@@ -3531,11 +3539,11 @@ function updateSSK(tab, rowId) {
             const warnaLabel = document.getElementById(`trx-warna-label-${rowId}`);
             const warnaNama = warnaLabel ? warnaLabel.textContent.trim() : '';
             if (warnaNama && warnaNama !== 'Pilih') {
-                ukuranList = masterData.ukuran.filter(u => hitungStokEfektifTrx(trxState.modelNama, warnaNama, u.nama, rowId, trxState.brandNama) > 0);
+                ukuranList = masterData.ukuran.filter(u => hitungStokEfektifTrx(trxState.modelNama, warnaNama, u.nama, rowId, trxState.brandNama, trxState.brandId) > 0);
                 if (ukuranList.length === 0) { showAlert('Tidak ada ukuran dengan stok tersedia untuk warna ini.', {type:'warning'}); return; }
             } else {
                 ukuranList = masterData.ukuran.filter(u =>
-                    masterData.warna.some(w => hitungStokEfektifTrx(trxState.modelNama, w.nama, u.nama, rowId, trxState.brandNama) > 0)
+                    masterData.warna.some(w => hitungStokEfektifTrx(trxState.modelNama, w.nama, u.nama, rowId, trxState.brandNama, trxState.brandId) > 0)
                 );
                 if (ukuranList.length === 0) { showAlert('Tidak ada ukuran dengan stok tersedia untuk model ini.', {type:'warning'}); return; }
             }
@@ -3796,7 +3804,7 @@ function updateSSK(tab, rowId) {
             if (!ukuran || ukuran === 'Pilih') { showAlert('Pilih ukuran!', {type:'warning'}); valid = false; return; }
             // Validasi retur: qty retur tidak boleh melebihi stok tersedia
             if (inputState.mode === 'retur') {
-                const stokTersedia = hitungStokItem(inputState.modelNama, warna, ukuran, inputState.brandNama);
+                const stokTersedia = hitungStokItem(inputState.modelNama, warna, ukuran, inputState.brandNama, inputState.brandId);
                 if (qty > stokTersedia) {
                     showAlert(
                         `Qty retur melebihi stok tersedia!\n\n${inputState.modelNama} • ${warna}/${ukuran}\nStok tersedia: ${stokTersedia} pcs\nQty retur: ${qty} pcs\n\nRetur dibatalkan.`,
@@ -4022,7 +4030,7 @@ function updateSSK(tab, rowId) {
         const warnaNama = (warnaEl?.textContent || '').trim();
         const ukuranNama = (ukuranEl?.textContent || '').trim();
         if (!warnaNama || warnaNama === 'Pilih' || !ukuranNama || ukuranNama === 'Pilih') return Infinity;
-        return Math.max(0, hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, id, trxState.brandNama));
+        return Math.max(0, hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, id, trxState.brandNama, trxState.brandId));
     }
 
     function changeQtyTrx(id, delta) {
@@ -4123,7 +4131,7 @@ function updateSSK(tab, rowId) {
             if (!qty || qty <= 0) { showAlert('QTY tidak boleh 0!\nIsi jumlah item yang akan ditransaksikan.', {type:'warning'}); valid = false; return; }
             const k = warna + '||' + ukuran;
             const totalQtyDiminta = qtyAggr[k] || qty;
-            const stokTersedia = hitungStokItem(trxState.modelNama, warna, ukuran, trxState.brandNama);
+            const stokTersedia = hitungStokItem(trxState.modelNama, warna, ukuran, trxState.brandNama, trxState.brandId);
             if (totalQtyDiminta > stokTersedia) {
                 showAlert(
                     `Stok tidak cukup!\n\n${trxState.modelNama} • ${warna}/${ukuran}\nStok tersedia: ${stokTersedia} pcs\nTotal qty diminta: ${totalQtyDiminta} pcs\n\nTransaksi dibatalkan.`,
