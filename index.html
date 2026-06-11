@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
     <title>Radja Production - App</title>
 
-    <link rel="manifest" href="/invradja/manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0b0c10">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,44 +14,14 @@
     <!-- Cegah browser Android/Chrome memunculkan toolbar pencarian -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-    <link rel="apple-touch-icon" href="/invradja/icon-192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/invradja/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/invradja/icon-512.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
 
     <script>
-        // ===== PWA INSTALL PROMPT =====
-        let deferredInstallPrompt = null;
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredInstallPrompt = e;
-            const btn = document.getElementById('btn-install-pwa');
-            if (btn) btn.style.display = 'flex';
-            console.log('✅ Install prompt ready');
-        });
-
-        window.addEventListener('appinstalled', () => {
-            deferredInstallPrompt = null;
-            const btn = document.getElementById('btn-install-pwa');
-            if (btn) btn.style.display = 'none';
-            console.log('✅ App installed');
-        });
-
-        window.triggerInstall = async function() {
-            if (!deferredInstallPrompt) {
-                alert('Prompt install tidak tersedia. Coba buka lewat Chrome dan pastikan belum di-install.');
-                return;
-            }
-            deferredInstallPrompt.prompt();
-            const { outcome } = await deferredInstallPrompt.userChoice;
-            console.log('Install outcome:', outcome);
-            if (outcome === 'accepted') deferredInstallPrompt = null;
-        };
-
-        // ===== SERVICE WORKER =====
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/invradja/service-worker.js')
+                navigator.serviceWorker.register('/service-worker.js')
                     .then(reg => console.log('✅ SW registered:', reg.scope))
                     .catch(err => console.log('❌ SW error:', err));
             });
@@ -489,10 +459,7 @@
                     <div class="h-[64px] flex flex-col justify-center px-4 flex-grow z-10 relative">
                         <h1 class="text-xl font-black text-[#15171e] leading-none tracking-wide mb-1">DASHBOARD <span class="text-white">STOK</span></h1>
                         <h2 class="display-brand-name text-[9px] font-bold text-[#15171e] tracking-[0.15em] leading-none uppercase">RADJA PRODUCTION</h2>
-                        <span id="app-version-badge" class="absolute inset-y-0 right-2 text-[#15171e] select-none flex flex-col items-end justify-center leading-none gap-0.5" style="font-family:'Poppins',sans-serif;" title="Versi Aplikasi">
-                            <button id="btn-install-pwa" onclick="triggerInstall()" title="Install App" style="display:none;align-items:center;gap:4px;background:rgba(0,0,0,0.18);border:1.5px solid rgba(0,0,0,0.25);border-radius:6px;padding:3px 8px;font-size:9px;font-weight:800;color:#15171e;cursor:pointer;margin-bottom:2px;letter-spacing:0.03em;"><i class="fa fa-download" style="font-size:9px;"></i> INSTALL</button>
-                            <span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">v1.1.0</span><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">RADJA PRODUCTION</span><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">@2026</span>
-                        </span>
+                        <span id="app-version-badge" class="absolute inset-y-0 right-2 text-[#15171e] select-none flex flex-col items-end justify-center leading-none gap-0.5" style="font-family:'Poppins',sans-serif;" title="Versi Aplikasi"><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">v1.0.0</span><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">RADJA PRODUCTION</span><span style="font-size:7px;font-weight:400;letter-spacing:0.04em;opacity:0.85;">@2026</span></span>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -1960,127 +1927,168 @@ ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;`;
         }, 50);
     }
 
-    // ==================== STOK DASHBOARD ====================
-    function hitungStokBrand(brandId) {
-        const map = {};
-        appData.riwayatInput.forEach(d => {
-            const b = masterData.brand.find(b => b.nama === d.brand);
-            if (brandId && (!b || b.id !== brandId)) return;
-            d.items.forEach(item => {
-                const key = `${d.model}||${item.warna}||${item.ukuran}`;
-                if (!map[key]) map[key] = 0;
-                map[key] += d.mode === 'retur' ? -item.qty : item.qty;
-            });
-        });
-        appData.riwayatTransaksi.forEach(d => {
-            const b = masterData.brand.find(b => b.nama === d.brand);
-            if (brandId && (!b || b.id !== brandId)) return;
-            d.items.forEach(item => {
-                const key = `${d.model}||${item.warna}||${item.ukuran}`;
-                if (!map[key]) map[key] = 0;
-                map[key] -= item.qty;
-            });
-        });
-        return map;
-    }
+    // ==================== STOK DASHBOARD (FIXED CASE & SPACE INSENSITIVE) ====================
 
-    // Hitung stok bersih = stok DB - qty yang sudah dipakai di baris lain dalam form transaksi aktif
-    function hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, kecualiRowId) {
-        let stokDB = hitungStokItem(modelNama, warnaNama, ukuranNama);
-        // Kurangi qty dari baris lain di form yang sama
-        document.querySelectorAll('#trx-variasi-list > div').forEach(row => {
-            const rowId = row.id.replace('trx-row-', '');
-            if (String(rowId) === String(kecualiRowId)) return;
-            const wLabel = document.getElementById(`trx-warna-label-${rowId}`);
-            const uLabel = document.getElementById(`trx-ukuran-label-${rowId}`);
-            const qtyEl = document.getElementById(`trx-qty-${rowId}`);
-            const w = wLabel?.textContent.trim();
-            const u = uLabel?.textContent.trim();
-            const q = parseInt(qtyEl?.value) || 0;
-            if (w && w !== 'Pilih' && u && u !== 'Pilih' && w === warnaNama && u === ukuranNama) {
-                stokDB -= q;
+// ==================== STOK DASHBOARD ====================
+function hitungStokBrand(brandId) {
+    const map = {};
+    appData.riwayatInput.forEach(d => {
+        const b = masterData.brand.find(b => (b.nama || "").trim().toUpperCase() === (d.brand || "").trim().toUpperCase());
+        if (brandId && (!b || b.id !== brandId)) return;
+        d.items.forEach(item => {
+            const currentModel = (d.model || "").trim().toUpperCase();
+            const currentWarna = (item.warna || "").trim().toUpperCase();
+            const currentUkuran = (item.ukuran || "").trim().toUpperCase();
+            const key = `${currentModel}||${currentWarna}||${currentUkuran}`;
+            
+            if (!map[key]) map[key] = 0;
+            map[key] += d.mode === 'retur' ? -item.qty : item.qty;
+        });
+    });
+    appData.riwayatTransaksi.forEach(d => {
+        const b = masterData.brand.find(b => (b.nama || "").trim().toUpperCase() === (d.brand || "").trim().toUpperCase());
+        if (brandId && (!b || b.id !== brandId)) return;
+        d.items.forEach(item => {
+            const currentModel = (d.model || "").trim().toUpperCase();
+            const currentWarna = (item.warna || "").trim().toUpperCase();
+            const currentUkuran = (item.ukuran || "").trim().toUpperCase();
+            const key = `${currentModel}||${currentWarna}||${currentUkuran}`;
+            
+            if (!map[key]) map[key] = 0;
+            map[key] -= item.qty;
+        });
+    });
+    return map;
+}
+
+// Hitung stok bersih = stok DB - qty yang sudah dipakai di baris lain dalam form transaksi aktif
+function hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, kecualiRowId, brandNama) {
+    let stokDB = hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama);
+    
+    const mTarget = (modelNama || "").trim().toUpperCase();
+    const wTarget = (warnaNama || "").trim().toUpperCase();
+    const uTarget = (ukuranNama || "").trim().toUpperCase();
+
+    // Kurangi qty dari baris lain di form yang sama
+    document.querySelectorAll('#trx-variasi-list > div').forEach(row => {
+        const rowId = row.id.replace('trx-row-', '');
+        if (String(rowId) === String(kecualiRowId)) return;
+        
+        const wLabel = document.getElementById(`trx-warna-label-${rowId}`);
+        const uLabel = document.getElementById(`trx-ukuran-label-${rowId}`);
+        const qtyEl = document.getElementById(`trx-qty-${rowId}`);
+        
+        const w = (wLabel?.textContent || "").trim().toUpperCase();
+        const u = (uLabel?.textContent || "").trim().toUpperCase();
+        const q = parseInt(qtyEl?.value) || 0;
+        
+        // FIX: tambahkan cek model agar tidak terpotong lintas model lain
+        if (w && w !== 'PILIH' && u && u !== 'PILIH' && w === wTarget && u === uTarget) {
+            stokDB -= q;
+        }
+    });
+    return stokDB;
+}
+
+function hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama) {
+    const mNama = (modelNama || "").trim().toUpperCase();
+    const wNama = (warnaNama || "").trim().toUpperCase();
+    const uNama = (ukuranNama || "").trim().toUpperCase();
+    const bNama = (brandNama || "").trim().toUpperCase();
+    const key = `${mNama}||${wNama}||${uNama}`;
+    
+    let stok = 0;
+    appData.riwayatInput.forEach(d => {
+        // Filter brand jika brandNama diberikan
+        if (bNama && (d.brand || "").trim().toUpperCase() !== bNama) return;
+        d.items.forEach(item => {
+            const currentModel = (d.model || "").trim().toUpperCase();
+            const currentWarna = (item.warna || "").trim().toUpperCase();
+            const currentUkuran = (item.ukuran || "").trim().toUpperCase();
+            
+            if (`${currentModel}||${currentWarna}||${currentUkuran}` === key) {
+                stok += d.mode === 'retur' ? -item.qty : item.qty;
             }
         });
-        return stokDB;
-    }
-
-    function hitungStokItem(modelNama, warnaNama, ukuranNama) {
-        const key = `${modelNama}||${warnaNama}||${ukuranNama}`;
-        let stok = 0;
-        appData.riwayatInput.forEach(d => {
-            d.items.forEach(item => {
-                if (`${d.model}||${item.warna}||${item.ukuran}` === key) {
-                    stok += d.mode === 'retur' ? -item.qty : item.qty;
-                }
-            });
+    });
+    appData.riwayatTransaksi.forEach(d => {
+        // Filter brand jika brandNama diberikan
+        if (bNama && (d.brand || "").trim().toUpperCase() !== bNama) return;
+        d.items.forEach(item => {
+            const currentModel = (d.model || "").trim().toUpperCase();
+            const currentWarna = (item.warna || "").trim().toUpperCase();
+            const currentUkuran = (item.ukuran || "").trim().toUpperCase();
+            
+            if (`${currentModel}||${currentWarna}||${currentUkuran}` === key) {
+                stok -= item.qty;
+            }
         });
-        appData.riwayatTransaksi.forEach(d => {
-            d.items.forEach(item => {
-                if (`${d.model}||${item.warna}||${item.ukuran}` === key) {
-                    stok -= item.qty;
-                }
-            });
-        });
-        return stok;
-    }
+    });
+    return stok;
+}
 
-    function updateSSK(tab, rowId) {
-        const modelNama = tab === 'input' ? inputState.modelNama : trxState.modelNama;
-        const warnaEl = document.getElementById(`${tab}-warna-label-${rowId}`);
-        const ukuranEl = document.getElementById(`${tab}-ukuran-label-${rowId}`);
-        const warnaNama = (warnaEl?.textContent || '').trim();
-        const ukuranNama = (ukuranEl?.textContent || '').trim();
-        const sskEl = document.getElementById(`${tab}-ssk-${rowId}`);
-        if (!sskEl) return;
-        const belumLengkap = !modelNama || !warnaNama || !ukuranNama || warnaNama === 'Pilih' || ukuranNama === 'Pilih';
-        if (belumLengkap) {
+function updateSSK(tab, rowId) {
+    const modelNama = tab === 'input' ? inputState.modelNama : trxState.modelNama;
+    const brandNama = tab === 'input' ? inputState.brandNama : trxState.brandNama;
+    const warnaEl = document.getElementById(`${tab}-warna-label-${rowId}`);
+    const ukuranEl = document.getElementById(`${tab}-ukuran-label-${rowId}`);
+    
+    // PERBAIKAN UTAMA: Tambahkan pembersihan spasi dan ubah ke UPPERCASE di level UI render
+    const warnaNama = (warnaEl?.textContent || '').trim().toUpperCase();
+    const ukuranNama = (ukuranEl?.textContent || '').trim().toUpperCase();
+    
+    const sskEl = document.getElementById(`${tab}-ssk-${rowId}`);
+    if (!sskEl) return;
+    
+    const belumLengkap = !modelNama || !warnaNama || !ukuranNama || warnaNama === 'PILIH' || ukuranNama === 'PILIH';
+    if (belumLengkap) {
+        sskEl.value = '';
+        sskEl.style.color = '';
+        return;
+    }
+    
+    const stokSaatIni = hitungStokItem(modelNama, warnaNama, ukuranNama, brandNama);
+    
+    if (tab === 'input') {
+        if (stokSaatIni <= 0) {
             sskEl.value = '';
             sskEl.style.color = '';
-            return;
-        }
-        const stokSaatIni = hitungStokItem(modelNama, warnaNama, ukuranNama);
-
-        // Tab INPUT: SSK = stok saat ini saja (belum dikurangi qty yg sedang diinput)
-        // Jika stok 0, kosongkan — stok baru bertambah setelah disimpan
-        if (tab === 'input') {
-            if (stokSaatIni <= 0) {
-                sskEl.value = '';
-                sskEl.style.color = '';
-            } else {
-                sskEl.value = stokSaatIni;
-                sskEl.style.color = stokSaatIni <= 4 ? '#facc15' : '#4ade80';
-            }
-            return;
-        }
-
-        // Tab TRANSAKSI: SSK = sisa stok setelah dikurangi qty baris LAIN + qty baris ini
-        const qtyEl = document.getElementById(`${tab}-qty-${rowId}`);
-        let qty = parseInt(qtyEl?.value) || 0;
-        // Stok efektif = stok DB dikurangi qty baris lain yang sama warna+ukuran
-        const stokEfektif = hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, rowId);
-        const maxStok = Math.max(0, stokEfektif);
-        if (qty > maxStok) {
-            qty = maxStok;
-            if (qtyEl) qtyEl.value = qty;
-        }
-        const sisa = stokEfektif - qty;
-        sskEl.value = sisa;
-        // Update tombol + (redup jika sudah maks)
-        if (qtyEl) {
-            const minusBtn = qtyEl.parentElement?.querySelector('button:first-child');
-            const plusBtn = qtyEl.parentElement?.querySelector('button:last-child');
-            if (minusBtn) minusBtn.style.opacity = qty <= 0 ? '0.3' : '1';
-            if (plusBtn) plusBtn.style.opacity = qty >= maxStok ? '0.3' : '1';
-        }
-        // Warna: merah jika < 0, kuning jika 0-4, hijau jika >= 5
-        if (sisa < 0) {
-            sskEl.style.color = '#f87171'; // red-400
-        } else if (sisa <= 4) {
-            sskEl.style.color = '#facc15'; // yellow-400
         } else {
-            sskEl.style.color = '#4ade80'; // green-400
+            sskEl.value = stokSaatIni;
+            sskEl.style.color = stokSaatIni <= 4 ? '#facc15' : '#4ade80';
         }
+        return;
     }
+    
+    const qtyEl = document.getElementById(`${tab}-qty-${rowId}`);
+    let qty = parseInt(qtyEl?.value) || 0;
+    
+    const stokEfektif = hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, rowId, brandNama);
+    const maxStok = Math.max(0, stokEfektif);
+    
+    if (qty > maxStok) {
+        qty = maxStok;
+        if (qtyEl) qtyEl.value = qty;
+    }
+    
+    const sisa = stokEfektif - qty;
+    sskEl.value = sisa;
+    
+    if (qtyEl) {
+        const minusBtn = qtyEl.parentElement?.querySelector('button:first-child');
+        const plusBtn = qtyEl.parentElement?.querySelector('button:last-child');
+        if (minusBtn) minusBtn.style.opacity = qty <= 0 ? '0.3' : '1';
+        if (plusBtn) plusBtn.style.opacity = qty >= maxStok ? '0.3' : '1';
+    }
+    
+    if (sisa < 0) {
+        sskEl.style.color = '#f87171';
+    } else if (sisa <= 4) {
+        sskEl.style.color = '#facc15';
+    } else {
+        sskEl.style.color = '#4ade80';
+    }
+}
 
     function hitungGrafik7Hari() {
         const hari = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
@@ -3464,14 +3472,14 @@ ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;`;
         let warnaList = masterData.warna;
         if (tab === 'trx' && trxState.modelNama) {
             warnaList = masterData.warna.filter(w => {
-                return masterData.ukuran.some(u => hitungStokEfektifTrx(trxState.modelNama, w.nama, u.nama, rowId) > 0);
+                return masterData.ukuran.some(u => hitungStokEfektifTrx(trxState.modelNama, w.nama, u.nama, rowId, trxState.brandNama) > 0);
             });
             if (warnaList.length === 0) { showAlert('Tidak ada warna dengan stok tersedia untuk model ini.', {type:'warning'}); return; }
         }
         
         if (tab === 'input' && inputState.mode === 'retur' && inputState.modelNama) {
             warnaList = masterData.warna.filter(w => {
-                return masterData.ukuran.some(u => hitungStokItem(inputState.modelNama, w.nama, u.nama) > 0);
+                return masterData.ukuran.some(u => hitungStokItem(inputState.modelNama, w.nama, u.nama, inputState.brandNama) > 0);
             });
             if (warnaList.length === 0) { showAlert('Tidak ada warna dengan stok tersedia untuk model ini.', {type:'warning'}); return; }
         }
@@ -3523,11 +3531,11 @@ ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;`;
             const warnaLabel = document.getElementById(`trx-warna-label-${rowId}`);
             const warnaNama = warnaLabel ? warnaLabel.textContent.trim() : '';
             if (warnaNama && warnaNama !== 'Pilih') {
-                ukuranList = masterData.ukuran.filter(u => hitungStokEfektifTrx(trxState.modelNama, warnaNama, u.nama, rowId) > 0);
+                ukuranList = masterData.ukuran.filter(u => hitungStokEfektifTrx(trxState.modelNama, warnaNama, u.nama, rowId, trxState.brandNama) > 0);
                 if (ukuranList.length === 0) { showAlert('Tidak ada ukuran dengan stok tersedia untuk warna ini.', {type:'warning'}); return; }
             } else {
                 ukuranList = masterData.ukuran.filter(u =>
-                    masterData.warna.some(w => hitungStokEfektifTrx(trxState.modelNama, w.nama, u.nama, rowId) > 0)
+                    masterData.warna.some(w => hitungStokEfektifTrx(trxState.modelNama, w.nama, u.nama, rowId, trxState.brandNama) > 0)
                 );
                 if (ukuranList.length === 0) { showAlert('Tidak ada ukuran dengan stok tersedia untuk model ini.', {type:'warning'}); return; }
             }
@@ -3788,7 +3796,7 @@ ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;`;
             if (!ukuran || ukuran === 'Pilih') { showAlert('Pilih ukuran!', {type:'warning'}); valid = false; return; }
             // Validasi retur: qty retur tidak boleh melebihi stok tersedia
             if (inputState.mode === 'retur') {
-                const stokTersedia = hitungStokItem(inputState.modelNama, warna, ukuran);
+                const stokTersedia = hitungStokItem(inputState.modelNama, warna, ukuran, inputState.brandNama);
                 if (qty > stokTersedia) {
                     showAlert(
                         `Qty retur melebihi stok tersedia!\n\n${inputState.modelNama} • ${warna}/${ukuran}\nStok tersedia: ${stokTersedia} pcs\nQty retur: ${qty} pcs\n\nRetur dibatalkan.`,
@@ -4014,7 +4022,7 @@ ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;`;
         const warnaNama = (warnaEl?.textContent || '').trim();
         const ukuranNama = (ukuranEl?.textContent || '').trim();
         if (!warnaNama || warnaNama === 'Pilih' || !ukuranNama || ukuranNama === 'Pilih') return Infinity;
-        return Math.max(0, hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, id));
+        return Math.max(0, hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, id, trxState.brandNama));
     }
 
     function changeQtyTrx(id, delta) {
@@ -4115,7 +4123,7 @@ ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;`;
             if (!qty || qty <= 0) { showAlert('QTY tidak boleh 0!\nIsi jumlah item yang akan ditransaksikan.', {type:'warning'}); valid = false; return; }
             const k = warna + '||' + ukuran;
             const totalQtyDiminta = qtyAggr[k] || qty;
-            const stokTersedia = hitungStokItem(trxState.modelNama, warna, ukuran);
+            const stokTersedia = hitungStokItem(trxState.modelNama, warna, ukuran, trxState.brandNama);
             if (totalQtyDiminta > stokTersedia) {
                 showAlert(
                     `Stok tidak cukup!\n\n${trxState.modelNama} • ${warna}/${ukuran}\nStok tersedia: ${stokTersedia} pcs\nTotal qty diminta: ${totalQtyDiminta} pcs\n\nTransaksi dibatalkan.`,
@@ -5139,9 +5147,7 @@ ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;`;
         itemsContainer.style.cssText = 'display:flex;flex-direction:column;gap:8px;margin:10px 0;max-height:300px;overflow-y:auto;';
 
         trx.items.forEach((item, idx) => {
-            const stokSaatIni = hitungStokItem(trx.model, item.warna, item.ukuran);
-            const maxQty = stokSaatIni + item.qty; 
-            const row = document.createElement('div');
+            const stokSaatIni = hitungStokItem(trx.model, item.warna, item.ukuran, trx.brand);
             row.style.cssText = 'background:#0b0c10;border:1px solid #2a2d35;border-radius:8px;padding:8px 10px;';
             row.innerHTML = `
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -5191,10 +5197,8 @@ ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;`;
             const item = trx.items[idx];
             const el = document.getElementById(`edit-trx-qty-${idx}`);
             const qtyBaru = parseInt(el?.value) || 0;
-            const stokSaatIni = hitungStokItem(trx.model, item.warna, item.ukuran);
-            const maxQty = stokSaatIni + item.qty;
-
-            if (qtyBaru < 1) { showToast(`Qty minimal 1 untuk ${item.warna}/${item.ukuran}`); return; }
+            const stokSaatIni = hitungStokItem(trx.model, item.warna, item.ukuran, trx.brand);
+            const maxQty = stokSaatIni + item.qty; { showToast(`Qty minimal 1 untuk ${item.warna}/${item.ukuran}`); return; }
             if (qtyBaru > maxQty) { showToast(`Qty maks ${maxQty} untuk ${item.warna}/${item.ukuran} (stok tidak cukup)`); return; }
 
             if (qtyBaru !== item.qty) {
@@ -6634,19 +6638,18 @@ ${docStyles}
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> MENGAMBIL DATA...';
             showToast('⏳ Menyiapkan backup...');
 
-            const safeQuery = async (fn) => { try { return await fn(); } catch { return { data: [] }; } };
             const [v, b, m, w, u, ri, riItems, trx, trxItems, pel, pengaturan] = await Promise.all([
-                safeQuery(() => sbClient.from('vendor').select('*').order('id')),
-                safeQuery(() => sbClient.from('brand').select('*').order('id')),
-                safeQuery(() => sbClient.from('model').select('*').order('id')),
-                safeQuery(() => sbClient.from('warna').select('*').order('id')),
-                safeQuery(() => sbClient.from('ukuran').select('*').order('id')),
-                safeQuery(() => sbClient.from('riwayat_input').select('*').order('id')),
-                safeQuery(() => sbClient.from('riwayat_input_item').select('*').order('id')),
-                safeQuery(() => sbClient.from('transaksi').select('*').order('id')),
-                safeQuery(() => sbClient.from('transaksi_item').select('*').order('id')),
-                safeQuery(() => sbClient.from('pelunasan').select('*').order('id')),
-                safeQuery(() => sbClient.from('pengaturan').select('*')),
+                sbClient.from('vendor').select('*').order('id'),
+                sbClient.from('brand').select('*').order('id'),
+                sbClient.from('model').select('*').order('id'),
+                sbClient.from('warna').select('*').order('id'),
+                sbClient.from('ukuran').select('*').order('id'),
+                sbClient.from('riwayat_input').select('*').order('id'),
+                sbClient.from('riwayat_input_item').select('*').order('id'),
+                sbClient.from('transaksi').select('*').order('id'),
+                sbClient.from('transaksi_item').select('*').order('id'),
+                sbClient.from('pelunasan').select('*').order('id').catch(() => ({ data: [] })),
+                sbClient.from('pengaturan').select('*'),
             ]);
 
             const backupData = {
@@ -6903,10 +6906,7 @@ ${docStyles}
     function exitApp() {
         showConfirm('Keluar dari aplikasi?', function() {
             window.close();
-            setTimeout(() => {
-                location.replace('about:blank');
-                setTimeout(() => { window.history.go(-(window.history.length)); }, 300);
-            }, 100);
+            setTimeout(() => { location.replace('about:blank'); }, 200);
         }, { title: 'EXIT', type: 'warning', icon: '🚪', ok: 'YA, KELUAR' });
     }
 
