@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
     <title>Radja Production - App</title>
 
-    <link rel="manifest" href="/inventory/manifest.json">
+    <link rel="manifest" href="/invradja/manifest.json">
     <meta name="theme-color" content="#0b0c10">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,14 +14,14 @@
     <!-- Cegah browser Android/Chrome memunculkan toolbar pencarian -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-    <link rel="apple-touch-icon" href="/inventory/icon-192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/inventory/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/inventory/icon-512.png">
+    <link rel="apple-touch-icon" href="/invradja/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/invradja/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/invradja/icon-512.png">
 
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/inventory/service-worker.js')
+                navigator.serviceWorker.register('/invradja/service-worker.js')
                     .then(reg => console.log('✅ SW registered:', reg.scope))
                     .catch(err => console.log('❌ SW error:', err));
             });
@@ -33,6 +33,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Montserrat:wght@400;600;700;900&family=Inter:wght@400;600;700;900&family=Nunito:wght@400;600;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
@@ -222,22 +223,22 @@
     </div>
     <style>
         @media print {
-            @page { size: A5 portrait; margin: 8mm 10mm 10mm 10mm; }
+            @page { size: letter; margin: 0 5mm 5mm 48mm; }
             body > * { display: none !important; }
-            #print-overlay { display: block !important; position: static !important; background: #fff !important; width: 100% !important; margin: 0 !important; }
+            #print-overlay { display: block !important; position: static !important; background: #fff !important; width: 108mm !important; margin: 0 0 0 2mm !important; }
             #print-toolbar { display: none !important; }
             #print-bottom-bar { display: none !important; }
             #print-content-scroll { display: block !important; overflow: visible !important; height: auto !important; }
             #print-doc-wrapper, .print-doc-wrapper-flex { display: block !important; padding: 0 !important; margin: 0 !important; background: #fff !important; width: 100% !important; max-width: 100% !important; }
             #print-doc-inner { display: block !important; background: #fff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
             .th-wrap, .sj-wrap { border-radius: 0 !important; box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; }
-            .th-tablewrap { padding: 0 18px !important; }
+            .th-tablewrap { padding: 0 !important; }
             .th-infobox { margin: 8px 0 !important; }
             .th-statusbox { margin: 0 0 8px !important; }
             .sj-header { align-items: flex-start !important; }
             .th-header { align-items: flex-start !important; }
             html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
         }
     </style>
 
@@ -272,7 +273,7 @@
         }
     </style>
 
-    <div id="pin-login-screen" style="display:none;position:fixed;inset:0;background:radial-gradient(ellipse at 50% 20%, rgba(255,140,0,0.55) 0%, rgba(180,80,0,0.25) 35%, #0b0c10 70%), #0b0c10;z-index:9995;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:0;">
+    <div id="pin-login-screen" style="display:none;position:fixed;inset:0;background:radial-gradient(ellipse at 50% 20%, rgba(255,140,0,0.55) 0%, rgba(180,80,0,0.25) 35%, #0b0c10 70%);z-index:9995;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:0;">
         <div class="w-full max-w-xs flex flex-col items-center gap-5 mx-auto">
             <div class="brand-gradient-bg rounded-2xl px-6 py-4 text-center w-full">
                 <div id="pin-login-logo-wrap" class="flex justify-center mb-2 hidden"><img id="pin-login-logo" src="" class="h-12 object-contain"></div>
@@ -1073,33 +1074,6 @@
                 </div>
             </div>
 
-            <!-- SQL SCHEMA -->
-            <div class="bg-cardBg rounded-xl border border-borderDark flex flex-col overflow-hidden">
-                <div class="flex items-center justify-between px-4 py-3 cursor-pointer select-none" onclick="toggleCollapse('sql-schema-collapse','sql-schema-chevron')">
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-code brand-text"></i><h3 class="text-sm font-bold text-white tracking-wide">SQL SCHEMA DATABASE</h3></div>
-                    <i id="sql-schema-chevron" class="fa-solid fa-chevron-down brand-text text-xs collapse-chevron"></i>
-                </div>
-                <div id="sql-schema-collapse" class="collapse-body collapsed flex flex-col gap-3 px-4 pb-4">
-                    <div class="bg-darkBg rounded-xl p-3 border border-borderDark flex items-start gap-3">
-                        <i class="fa-solid fa-circle-info brand-text text-sm mt-0.5 flex-shrink-0"></i>
-                        <div>
-                            <div class="text-[11px] font-black text-white mb-0.5">UNTUK APA?</div>
-                            <p class="text-[9px] text-gray-400 leading-relaxed">Digunakan saat ingin clone database ke project Supabase baru. Jalankan SQL ini terlebih dahulu di project baru, baru kemudian lakukan Restore dari file backup.</p>
-                        </div>
-                    </div>
-                    <div class="bg-darkBg rounded-xl p-3 border border-[color:var(--brand-main)]/30 flex flex-col gap-2">
-                        <div class="text-[10px] font-black text-white flex items-center gap-1.5 mb-1"><i class="fa-solid fa-list-ol brand-text text-[9px]"></i> LANGKAH-LANGKAH</div>
-                        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded-full brand-gradient-bg text-black text-[9px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">1</span><p class="text-[9px] text-gray-400 leading-relaxed">Buat project baru di <span class="text-white font-bold">supabase.com</span></p></div>
-                        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded-full brand-gradient-bg text-black text-[9px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">2</span><p class="text-[9px] text-gray-400 leading-relaxed">Klik tombol di bawah → Copy SQL → Paste & Run di <span class="text-white font-bold">SQL Editor</span> Supabase</p></div>
-                        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded-full brand-gradient-bg text-black text-[9px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">3</span><p class="text-[9px] text-gray-400 leading-relaxed">Ganti URL & API Key di konfigurasi app ke project baru</p></div>
-                        <div class="flex items-start gap-2"><span class="w-5 h-5 rounded-full brand-gradient-bg text-black text-[9px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">4</span><p class="text-[9px] text-gray-400 leading-relaxed">Gunakan fitur <span class="text-white font-bold">Restore</span> di bawah untuk isi data dari file backup</p></div>
-                    </div>
-                    <button onclick="autoSetupDatabaseFromSetting()" class="w-full py-3 brand-gradient-bg text-black font-black text-[11px] rounded-xl flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-code"></i> LIHAT & COPY SQL SCHEMA
-                    </button>
-                </div>
-            </div>
-
             <!-- BACKUP & RESTORE DATA -->
             <div class="bg-cardBg rounded-xl border border-borderDark flex flex-col overflow-hidden">
                 <div class="flex items-center justify-between px-4 py-3 cursor-pointer select-none" onclick="toggleCollapse('backup-collapse','backup-chevron')">
@@ -1194,8 +1168,8 @@
     // SUPABASE CONFIG
     // Isi di sini ATAU biarkan kosong (app akan minta lewat UI saat pertama buka)
     // ================================================================
-    // const SUPABASE_URL = 'https://wyalxprcrrisowsqftgt.supabase.co';
-    // const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5YWx4cHJjcnJpc293c3FmdGd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNDg2MDcsImV4cCI6MjA5NjkyNDYwN30.yA3g5bydgYbcrp1KOvYf0G7JXJHmbjhoCw928A0TzKc';
+    const SUPABASE_URL = 'https://pkeddygrsxzkixvpsxmw.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrZWRkeWdyc3h6a2l4dnBzeG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMjQ0ODUsImV4cCI6MjA5NTYwMDQ4NX0.bul44ORV7nJfaD01dbF_BdKRc22BJkABJObRb6J_Esc';
     // ================================================================
 
     let sbClient = null;
@@ -1736,18 +1710,6 @@ CREATE TABLE IF NOT EXISTS pelunasan (
     created_at timestamptz default now()
 );
 
-CREATE TABLE IF NOT EXISTS bayar_sebagian (
-    id bigint generated by default as identity primary key,
-    vendor text,
-    jumlah_bayar integer,
-    total_tagihan integer,
-    sisa integer,
-    keterangan text,
-    tanggal text,
-    jam text,
-    created_at timestamptz default now()
-);
-
 -- ============================================
 -- DISABLE ROW LEVEL SECURITY (semua tabel)
 -- Wajib agar anon key bisa akses data
@@ -1762,8 +1724,7 @@ ALTER TABLE riwayat_input DISABLE ROW LEVEL SECURITY;
 ALTER TABLE riwayat_input_item DISABLE ROW LEVEL SECURITY;
 ALTER TABLE transaksi DISABLE ROW LEVEL SECURITY;
 ALTER TABLE transaksi_item DISABLE ROW LEVEL SECURITY;
-ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bayar_sebagian DISABLE ROW LEVEL SECURITY;`;
+ALTER TABLE pelunasan DISABLE ROW LEVEL SECURITY;`;
 
     function tampilkanModalSQL(fromConfig) {
         // Hapus modal lama jika ada
@@ -2021,10 +1982,8 @@ function hitungStokEfektifTrx(modelNama, warnaNama, ukuranNama, kecualiRowId, br
         const u = (uLabel?.textContent || "").trim().toUpperCase();
         const q = parseInt(qtyEl?.value) || 0;
         
-        // FIX: cek model via trxState (satu form = satu model), warna & ukuran per baris
-        const activeModel = (trxState?.modelNama || "").trim().toUpperCase();
-        const modelMatch = !mTarget || !activeModel || activeModel === mTarget;
-        if (w && w !== 'PILIH' && u && u !== 'PILIH' && w === wTarget && u === uTarget && modelMatch) {
+        // FIX: tambahkan cek model agar tidak terpotong lintas model lain
+        if (w && w !== 'PILIH' && u && u !== 'PILIH' && w === wTarget && u === uTarget) {
             stokDB -= q;
         }
     });
@@ -2259,7 +2218,7 @@ function updateSSK(tab, rowId) {
             } else {
                 const brandStok = masterData.brand.map(b => {
                     const stokMap = hitungStokBrand(b.id);
-                    const total = Object.values(stokMap).reduce((s, v) => s + Math.max(0, v), 0);
+                    const total = Object.values(stokMap).reduce((s, v) => s + v, 0);
                     return { ...b, total };
                 }).filter(b => b.total !== 0 || appData.riwayatInput.some(d => d.brand === b.nama)).sort((a, b) => {
     if (_brandSortMode === 'zero-first') {
@@ -2452,7 +2411,6 @@ function updateSSK(tab, rowId) {
 
     let _detailStokMap = {};
     let _detailBrandName = '';
-    let _detailBrandId = null;
     let _activeWarnaFilter = null;
     let _filterInputMode = 'semua'; // 'semua' | 'masuk' | 'retur'
 
@@ -2476,7 +2434,7 @@ function updateSSK(tab, rowId) {
         const LOW_STOCK = 5;
         const itemsEl = document.getElementById('stok-detail-items');
         const entries = Object.entries(_detailStokMap).filter(([key, qty]) => {
-            if (qty === 0) return false;
+            if (qty <= 0) return false;
             const parts = key.split('||');
             const model = parts[0], warna = parts[1], ukuran = parts[2];
             // Filter warna (chip lama)
@@ -2490,41 +2448,29 @@ function updateSSK(tab, rowId) {
             itemsEl.innerHTML = '<div class="text-center text-gray-500 text-xs py-10">Belum ada data stok.</div>';
             return;
         }
-        // Urutkan: negatif di atas (untuk mudah audit), lalu sort normal
-        entries.sort(([a, qa], [b, qb]) => {
-            if (qa < 0 && qb >= 0) return -1;
-            if (qb < 0 && qa >= 0) return 1;
-            return a.localeCompare(b, 'id', { sensitivity: 'base' });
-        });
+        entries.sort(([a], [b]) => a.localeCompare(b, 'id', { sensitivity: 'base' }));
         itemsEl.innerHTML = entries.map(([key, qty]) => {
             const [model, warna, ukuran] = key.split('||');
-            const isMinus = qty < 0;
-            const isLow = !isMinus && qty <= LOW_STOCK;
-            const warnaKode = isMinus ? '#7f1d1d' : getWarnaKode(warna);
+            const isLow = qty <= LOW_STOCK;
+            const warnaKode = getWarnaKode(warna);
             const r = parseInt(warnaKode.slice(1,3),16);
             const g = parseInt(warnaKode.slice(3,5),16);
             const b = parseInt(warnaKode.slice(5,7),16);
             const luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
             const textOnColor = luminance > 0.45 ? '#111111' : '#ffffff';
             const bgColor = warnaKode;
-            const textColor = isMinus ? '#fca5a5' : textOnColor;
-            const borderStyle = isMinus ? '2px solid #ef4444' : '1.5px solid rgba(255,140,0,0.55)';
-            const keyEsc = key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-            return `<div class="rounded-lg overflow-hidden flex items-stretch" style="background:${bgColor}; min-height:38px; border: ${borderStyle};">
+            const textColor = textOnColor;
+            return `<div class="rounded-lg overflow-hidden flex items-stretch" style="background:${bgColor}; min-height:38px; border: 1.5px solid rgba(255,140,0,0.55);">
                 <div class="flex-1 flex items-center px-3 py-1.5">
                     <div class="flex flex-col leading-tight">
                         <span class="font-black text-[11px] tracking-wide" style="color:${textColor};">${model} <span style="opacity:0.5;font-weight:400;">|</span> <span class="text-[10px] font-bold" style="color:${textColor};opacity:0.85;">SIZE: ${ukuran}</span></span>
                         <span class="text-[9px] font-bold mt-0.5 tracking-wider" style="color:${textColor};opacity:0.75;">&#9632; ${warna}</span>
-                        ${isMinus ? `<span class="text-[8px] font-black mt-0.5" style="color:#f87171;"><i class="fa-solid fa-circle-exclamation mr-1"></i>STOK MINUS — CEK DATA</span>` : ''}
                         ${isLow ? `<span class="text-[8px] font-bold mt-0.5" style="color:${textColor};opacity:0.85;"><i class="fa-solid fa-triangle-exclamation mr-1"></i>STOK MENIPIS</span>` : ''}
                     </div>
                 </div>
-                <div class="flex flex-col items-end justify-center gap-1 px-3" style="min-width:110px;">
-                    <div class="flex flex-row items-center justify-between w-full">
-                        <span class="font-bold text-[10px]" style="color:${textColor};opacity:0.7;white-space:nowrap;">Stok:</span>
-                        <span class="font-black text-[22px] leading-none" style="color:${isMinus ? '#f87171' : textColor};">${qty}</span>
-                    </div>
-                    ${isMinus ? `<button onclick="openKoreksiStok('${keyEsc}',${qty})" style="background:#ef4444;color:#fff;font-size:8px;font-weight:900;padding:2px 7px;border-radius:5px;border:none;cursor:pointer;font-family:Montserrat,sans-serif;letter-spacing:0.5px;white-space:nowrap;"><i class="fa-solid fa-wrench mr-1"></i>KOREKSI</button>` : ''}
+                <div class="flex flex-row items-center justify-between px-3" style="min-width:100px;">
+                    <span class="font-bold text-[10px]" style="color:${textColor};opacity:0.7;white-space:nowrap;">Stok:</span>
+                    <span class="font-black text-[22px] leading-none" style="color:${textColor};">${qty}</span>
                 </div>
             </div>`;
         }).join('');
@@ -2641,14 +2587,13 @@ function updateSSK(tab, rowId) {
 
     function openBrandDetail(brandId, brandName) {
         _detailBrandName = brandName;
-        _detailBrandId = brandId;
         _activeWarnaFilter = null;
         _stokFilterType = null; _stokFilterValue = null;
         const dashboard = document.getElementById('stok-dashboard-view');
         const detailView = document.getElementById('stok-detail-view');
         document.getElementById('detail-brand-name').innerText = brandName;
         _detailStokMap = hitungStokBrand(brandId);
-        const totalPcs = Object.values(_detailStokMap).reduce((s, v) => s + Math.max(0, v), 0);
+        const totalPcs = Object.values(_detailStokMap).reduce((s, v) => s + v, 0);
         document.getElementById('detail-brand-total').innerText = totalPcs.toLocaleString('id-ID') + ' Pcs';
 
         // Reset filter panel MODEL/SIZE
@@ -2659,7 +2604,7 @@ function updateSSK(tab, rowId) {
         // Build warna chips
         const warnaSet = new Map();
         Object.entries(_detailStokMap).forEach(([key, qty]) => {
-            if (qty === 0) return;
+            if (qty <= 0) return;
             const [, warna] = key.split('||');
             if (!warnaSet.has(warna)) {
                 const warnaData = masterData.warna.find(w => w.nama.toUpperCase() === warna.toUpperCase());
@@ -2711,77 +2656,6 @@ function updateSSK(tab, rowId) {
                 detailView.classList.add('hidden'); detailView.classList.remove('flex');
                 dashboard.classList.remove('hidden'); dashboard.classList.add('flex', 'tab-content');
             }, 250);
-        }
-    }
-
-    function openKoreksiStok(key, stokSkrg) {
-        const [model, warna, ukuran] = key.split('||');
-        const modal = document.getElementById('modal-koreksi-stok');
-        if (!modal) return;
-        document.getElementById('koreksi-info-text').innerHTML =
-            `<span style="color:#ff8c00;font-weight:900;">${_detailBrandName}</span> &bull; ${model}<br>
-             <span style="font-size:10px;color:#9ca3af;">${warna} / ${ukuran}</span>`;
-        document.getElementById('koreksi-stok-skrg').textContent = stokSkrg;
-        document.getElementById('koreksi-stok-target').value = 0;
-        modal.dataset.key = key;
-        modal.dataset.stokSkrg = stokSkrg;
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-
-    function tutupKoreksiStok() {
-        const modal = document.getElementById('modal-koreksi-stok');
-        if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
-    }
-
-    async function simpanKoreksiStok() {
-        const modal = document.getElementById('modal-koreksi-stok');
-        if (!modal) return;
-        const key = modal.dataset.key;
-        const stokSkrg = parseInt(modal.dataset.stokSkrg) || 0;
-        const stokTarget = parseInt(document.getElementById('koreksi-stok-target').value);
-        if (isNaN(stokTarget) || stokTarget < 0) {
-            showToast('⚠️ Isi stok yang benar (≥ 0)'); return;
-        }
-        const selisih = stokTarget - stokSkrg; // harus positif supaya stok naik
-        if (selisih === 0) { tutupKoreksiStok(); return; }
-        if (selisih < 0) {
-            showToast('⚠️ Stok target harus lebih besar dari stok sekarang'); return;
-        }
-        const [model, warna, ukuran] = key.split('||');
-        const brandNama = _detailBrandName;
-        const now = new Date();
-        const tanggal = now.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
-        const jam = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
-        const btnSimpan = document.getElementById('koreksi-btn-simpan');
-        if (btnSimpan) { btnSimpan.disabled = true; btnSimpan.textContent = 'Menyimpan...'; }
-        try {
-            const { data: ri, error: riErr } = await sbClient.from('riwayat_input').insert({
-                mode: 'masuk', brand: brandNama, model: model,
-                keterangan: `KOREKSI STOK (dari ${stokSkrg} → ${stokTarget})`, tanggal, jam
-            }).select().single();
-            if (riErr) throw riErr;
-            const { data: insertedItems, error: itemErr } = await sbClient.from('riwayat_input_item').insert([
-                { riwayat_input_id: ri.id, warna, ukuran, qty: selisih }
-            ]).select();
-            if (itemErr) throw itemErr;
-            // Update local data
-            appData.riwayatInput.unshift({
-                id: ri.id, mode: 'masuk', brand: brandNama, model,
-                keterangan: `KOREKSI STOK (dari ${stokSkrg} → ${stokTarget})`, tanggal, jam,
-                items: [{ id: insertedItems[0]?.id, warna, ukuran, qty: selisih }]
-            });
-            // Refresh detail view
-            _detailStokMap = hitungStokBrand(_detailBrandId);
-            const totalPcs = Object.values(_detailStokMap).reduce((s, v) => s + Math.max(0, v), 0);
-            document.getElementById('detail-brand-total').innerText = totalPcs.toLocaleString('id-ID') + ' Pcs';
-            renderDetailItems(null);
-            tutupKoreksiStok();
-            showToast(`✅ Koreksi berhasil! Stok ${model} ${warna}/${ukuran} → ${stokTarget} pcs`);
-        } catch(err) {
-            showToast('❌ Gagal koreksi: ' + (err.message || err));
-        } finally {
-            if (btnSimpan) { btnSimpan.disabled = false; btnSimpan.textContent = 'SIMPAN'; }
         }
     }
 
@@ -3346,76 +3220,6 @@ function updateSSK(tab, rowId) {
         showToast('✅ Harga diperbarui!');
     }
     function batalEditHarga(id) { renderModelList(); }
-    function batalEditNama(id) { renderModelList(); }
-    function editNamaModel(id) {
-        const m = masterData.model.find(x => x.id == id);
-        if (!m) return;
-        const item = document.getElementById('model-item-' + id);
-        if (!item || item.querySelector('.edit-nama-input')) return;
-        const namaEl = item.querySelector('.model-nama-display-' + id);
-        namaEl.innerHTML = `<div class="flex items-center gap-1">
-            <input type="text" value="${m.nama}" class="edit-nama-input bg-darkBg border border-[color:var(--brand-main)] rounded px-1.5 py-0.5 text-[10px] text-white w-36 focus:outline-none">
-            <button onclick="renameModel(${id})" class="w-5 h-5 bg-green-500/20 border border-green-500/40 text-green-400 rounded flex items-center justify-center"><i class="fa-solid fa-check text-[8px]"></i></button>
-            <button onclick="batalEditNama(${id})" class="w-5 h-5 bg-gray-500/20 border border-gray-500/40 text-gray-400 rounded flex items-center justify-center"><i class="fa-solid fa-xmark text-[8px]"></i></button>
-        </div>`;
-        item.querySelector('.edit-nama-input').focus();
-        item.querySelector('.edit-nama-input').select();
-    }
-    async function renameModel(id) {
-        const m = masterData.model.find(x => x.id == id);
-        if (!m) return;
-        const item = document.getElementById('model-item-' + id);
-        const input = item ? item.querySelector('.edit-nama-input') : null;
-        if (!input) return;
-        const namaBaru = input.value.trim().toUpperCase();
-        if (!namaBaru) { showAlert('Nama model tidak boleh kosong!', {type:'warning'}); return; }
-        if (namaBaru === m.nama) { renderModelList(); return; }
-        // Cek duplikat di brand yang sama
-        const isDuplikat = masterData.model.some(x => x.id !== id && x.brandId === m.brandId && x.nama.toUpperCase() === namaBaru);
-        if (isDuplikat) { showAlert(`Nama "${namaBaru}" sudah ada di brand ${m.brandNama}!`, {type:'warning'}); return; }
-        const namaLama = m.nama;
-        showConfirm(
-            `Rename model?\n"${namaLama}" → "${namaBaru}"\n\nSemua riwayat & transaksi akan ikut diperbarui.`,
-            async function() {
-                try {
-                    // Step 1: update tabel model
-                    const { error: e1 } = await sbClient.from('model').update({ nama: namaBaru }).eq('id', id);
-                    if (e1) throw new Error('Gagal update tabel model: ' + e1.message);
-                    // Step 2: cascade update riwayat_input
-                    const { error: e2 } = await sbClient.from('riwayat_input')
-                        .update({ model: namaBaru })
-                        .eq('model', namaLama)
-                        .eq('brand', m.brandNama);
-                    if (e2) {
-                        // Rollback step 1
-                        await sbClient.from('model').update({ nama: namaLama }).eq('id', id);
-                        throw new Error('Gagal update riwayat_input: ' + e2.message);
-                    }
-                    // Step 3: cascade update transaksi
-                    const { error: e3 } = await sbClient.from('transaksi')
-                        .update({ model: namaBaru })
-                        .eq('model', namaLama)
-                        .eq('brand', m.brandNama);
-                    if (e3) {
-                        // Rollback step 1 & 2
-                        await sbClient.from('model').update({ nama: namaLama }).eq('id', id);
-                        await sbClient.from('riwayat_input').update({ model: namaLama }).eq('model', namaBaru).eq('brand', m.brandNama);
-                        throw new Error('Gagal update transaksi: ' + e3.message);
-                    }
-                    // Update local state
-                    m.nama = namaBaru;
-                    // Update nama di riwayat & transaksi local cache
-                    appData.riwayatInput.forEach(r => { if (r.model === namaLama && r.brand === m.brandNama) r.model = namaBaru; });
-                    appData.riwayatTransaksi.forEach(t => { if (t.model === namaLama && t.brand === m.brandNama) t.model = namaBaru; });
-                    renderModelList();
-                    showToast('✅ Model berhasil di-rename!');
-                } catch(err) {
-                    showAlert('❌ ' + err.message + '\n\nSilakan cek data secara manual.', {type:'danger'});
-                }
-            },
-            {title:'RENAME MODEL', type:'warning', icon:'✏️', ok:'YA, RENAME'}
-        );
-    }
     function editHargaModel(id) {
         const m = masterData.model.find(x => x.id == id);
         if (!m) return;
@@ -3445,12 +3249,11 @@ function updateSSK(tab, rowId) {
                 ${items.map(m => `
                     <div class="flex items-center justify-between py-1.5 border-b border-borderDark last:border-0" id="model-item-${m.id}">
                         <div>
-                            <div class="text-[11px] font-bold text-white model-nama-display-${m.id}">${m.nama}</div>
+                            <div class="text-[11px] font-bold text-white">${m.nama}</div>
                             <div class="text-[9px] text-gray-400 model-harga-display-${m.id}">Rp ${m.harga ? m.harga.toLocaleString('id-ID') : '—'}</div>
                         </div>
                         <div class="flex gap-1.5 flex-shrink-0">
-                            <button onclick="editNamaModel(${m.id})" title="Rename" class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center hover:bg-blue-500/20 transition-colors"><i class="fa-solid fa-i-cursor text-[9px]"></i></button>
-                            <button onclick="editHargaModel(${m.id})" title="Edit Harga" class="w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 flex items-center justify-center hover:bg-yellow-500/20 transition-colors"><i class="fa-solid fa-pen text-[9px]"></i></button>
+                            <button onclick="editHargaModel(${m.id})" class="w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 flex items-center justify-center hover:bg-yellow-500/20 transition-colors"><i class="fa-solid fa-pen text-[9px]"></i></button>
                             <button onclick="hapusModel(${m.id})" class="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center hover:bg-red-500/20 transition-colors"><i class="fa-regular fa-trash-can text-[10px]"></i></button>
                         </div>
                     </div>`).join('')}
@@ -4345,29 +4148,26 @@ function updateSSK(tab, rowId) {
         try {
             const modelNama = trxState.modelNama;
             for (const item of items) {
-                // Ambil riwayat input terbaru dari DB untuk item ini — filter by brand + model
-                const brandNamaFilter = trxState.brandNama;
+                // Ambil riwayat input terbaru dari DB untuk item ini
                 const { data: inputRows } = await sbClient
                     .from('riwayat_input_item')
-                    .select('qty, riwayat_input!inner(mode, model, brand)')
+                    .select('qty, riwayat_input!inner(mode, model)')
                     .eq('warna', item.warna)
-                    .eq('ukuran', item.ukuran)
-                    .eq('riwayat_input.brand', brandNamaFilter);
+                    .eq('ukuran', item.ukuran);
                 const { data: trxRows } = await sbClient
                     .from('transaksi_item')
-                    .select('qty, transaksi!inner(model, brand)')
+                    .select('qty, transaksi!inner(model)')
                     .eq('warna', item.warna)
-                    .eq('ukuran', item.ukuran)
-                    .eq('transaksi.brand', brandNamaFilter);
+                    .eq('ukuran', item.ukuran);
 
                 let stokDB = 0;
                 (inputRows || []).forEach(r => {
-                    if (r.riwayat_input?.model === modelNama && r.riwayat_input?.brand === brandNamaFilter) {
+                    if (r.riwayat_input?.model === modelNama) {
                         stokDB += r.riwayat_input.mode === 'retur' ? -r.qty : r.qty;
                     }
                 });
                 (trxRows || []).forEach(r => {
-                    if (r.transaksi?.model === modelNama && r.transaksi?.brand === brandNamaFilter) stokDB -= r.qty;
+                    if (r.transaksi?.model === modelNama) stokDB -= r.qty;
                 });
 
                 if (item.qty > stokDB) {
@@ -6206,14 +6006,12 @@ function updateSSK(tab, rowId) {
         }).join('');
     }
 
-    async function hapusRiwayatBayarSebagian(id, vendorEncoded) {
-        showConfirm('Hapus catatan bayar sebagian ini?', async function() {
-            const { error } = await sbClient.from('pelunasan').delete().eq('id', id);
-            if (error) { showToast('❌ Gagal hapus: ' + error.message); return; }
-            appData.pelunasan = appData.pelunasan.filter(p => p.id !== id);
+    function hapusRiwayatBayarSebagian(id, vendorEncoded) {
+        showConfirm('Hapus catatan bayar sebagian ini?', function() {
+            let riwayat = JSON.parse(localStorage.getItem('bayar_sebagian_history') || '[]');
+            riwayat = riwayat.filter(r => r.id !== id);
+            localStorage.setItem('bayar_sebagian_history', JSON.stringify(riwayat));
             renderBayarSebagianView();
-            renderPelunasanView();
-            renderRiwayatTransaksi();
             showToast('🗑️ Catatan dihapus.');
         }, {title:'HAPUS CATATAN', type:'danger', icon:'🗑️', ok:'YA, HAPUS'});
     }
@@ -6634,7 +6432,7 @@ function updateSSK(tab, rowId) {
 <style>
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: #fff; }
-  @page { size: A5 portrait; margin: 8mm 10mm 10mm 10mm; }
+  @page { size: letter; margin: 0 5mm 5mm 48mm; }
 </style>
 ${docStyles}
 </head>
@@ -6642,7 +6440,7 @@ ${docStyles}
 </html>`;
 
         const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:148mm;height:210mm;border:none;opacity:0;';
+        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;opacity:0;';
         document.body.appendChild(iframe);
         iframe.contentDocument.open();
         iframe.contentDocument.write(iframeDoc);
@@ -6981,7 +6779,7 @@ ${docStyles}
                             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> MEMPROSES...';
                             showToast('⏳ Menghapus data lama...');
 
-                            await sbClient.from('pelunasan').delete().neq('id', 0);
+                            await sbClient.from('pelunasan').delete().neq('id', 0).catch(() => {});
                             await sbClient.from('transaksi_item').delete().neq('id', 0);
                             await sbClient.from('transaksi').delete().neq('id', 0);
                             await sbClient.from('riwayat_input_item').delete().neq('id', 0);
@@ -7115,12 +6913,10 @@ ${docStyles}
     });
 
     function exitApp() {
-        _pinLoginVal = '';
-        const dots = document.querySelectorAll('#pin-login-dots .pin-dot');
-        dots.forEach(d => d.classList.remove('active'));
-        const err = document.getElementById('pin-login-error');
-        if (err) err.textContent = '';
-        document.getElementById('pin-login-screen').style.display = 'flex';
+        showConfirm('Keluar dari aplikasi?', function() {
+            window.close();
+            setTimeout(() => { location.replace('about:blank'); }, 200);
+        }, { title: 'EXIT', type: 'warning', icon: '🚪', ok: 'YA, KELUAR' });
     }
 
     const _blockBrowserKeys = function(e) {
@@ -7184,18 +6980,6 @@ ${docStyles}
             closePrintOverlay(); return;
         }
 
-        // Tutup Modal Koreksi Stok jika terbuka
-        const modalKoreksi = document.getElementById('modal-koreksi-stok');
-        if (modalKoreksi && !modalKoreksi.classList.contains('hidden')) {
-            tutupKoreksiStok(); return;
-        }
-
-        // Tutup Brand Detail jika terbuka
-        const stokDetailView = document.getElementById('stok-detail-view');
-        if (stokDetailView && !stokDetailView.classList.contains('hidden')) {
-            closeBrandDetail(); return;
-        }
-
         const pinLogin = document.getElementById('pin-login-screen');
         const pinSetup = document.getElementById('pin-setup-screen');
         const configScreen = document.getElementById('config-screen');
@@ -7214,36 +6998,5 @@ ${docStyles}
     });
 
     </script>
-
-    <!-- MODAL KOREKSI STOK -->
-    <div id="modal-koreksi-stok" class="hidden fixed inset-0 z-[999] items-end justify-center" style="background:rgba(0,0,0,0.7);">
-        <div style="background:#111318;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;border-top:2px solid #ef4444;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <span style="color:#ef4444;font-size:13px;font-weight:900;letter-spacing:1px;font-family:Montserrat,sans-serif;"><i class="fa-solid fa-wrench mr-2"></i>KOREKSI STOK</span>
-                <button onclick="tutupKoreksiStok()" style="background:none;border:none;color:#6b7280;font-size:20px;cursor:pointer;line-height:1;">&times;</button>
-            </div>
-            <div id="koreksi-info-text" style="font-size:12px;color:#fff;font-family:Montserrat,sans-serif;margin-bottom:16px;line-height:1.6;"></div>
-            <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px;">
-                <div style="flex:1;background:#1a1d24;border-radius:10px;padding:12px;text-align:center;">
-                    <div style="color:#9ca3af;font-size:9px;font-weight:700;margin-bottom:4px;">STOK SEKARANG</div>
-                    <div id="koreksi-stok-skrg" style="color:#f87171;font-size:26px;font-weight:900;font-family:Montserrat,sans-serif;"></div>
-                </div>
-                <div style="color:#6b7280;font-size:20px;">→</div>
-                <div style="flex:1;background:#1a1d24;border-radius:10px;padding:12px;text-align:center;">
-                    <div style="color:#9ca3af;font-size:9px;font-weight:700;margin-bottom:4px;">STOK TARGET</div>
-                    <input id="koreksi-stok-target" type="number" min="0" value="0"
-                        style="width:100%;text-align:center;background:transparent;border:none;outline:none;color:#4ade80;font-size:26px;font-weight:900;font-family:Montserrat,sans-serif;">
-                </div>
-            </div>
-            <div style="background:#1a1d24;border-radius:8px;padding:10px 14px;margin-bottom:20px;font-size:10px;color:#9ca3af;font-family:Montserrat,sans-serif;line-height:1.6;">
-                ⚡ Koreksi akan mencatat <b style="color:#ff8c00;">Input Masuk</b> sebagai selisih dari stok sekarang ke target.<br>
-                Contoh: stok -1 → target 5 = input masuk 6 pcs dicatat otomatis.
-            </div>
-            <div style="display:flex;gap:10px;">
-                <button onclick="tutupKoreksiStok()" style="flex:1;padding:13px;border:1px solid #3a3d45;border-radius:12px;background:#1f2230;color:#9ca3af;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer;">BATAL</button>
-                <button id="koreksi-btn-simpan" onclick="simpanKoreksiStok()" style="flex:2;padding:13px;border:none;border-radius:12px;background:linear-gradient(90deg,#ef4444,#f87171);color:#fff;font-family:Montserrat,sans-serif;font-weight:900;font-size:12px;cursor:pointer;letter-spacing:0.5px;">SIMPAN</button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
