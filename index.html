@@ -1322,55 +1322,7 @@
     }
 
     // ---- PIN MASTER ----
-    function updatePinMasterDots() {
-        for (let i = 0; i < 4; i++) {
-            const dot = document.getElementById('pmd-' + i);
-            if (i < _pinMasterVal.length) {
-                dot.style.background = 'var(--brand-main)';
-                dot.style.borderColor = 'var(--brand-main)';
-            } else {
-                dot.style.background = 'transparent';
-                dot.style.borderColor = '#4b5563';
-            }
-        }
-    }
-
-    async function pinMasterInput(digit) {
-        if (_pinMasterVal.length >= 4) return;
-        _pinMasterVal += digit;
-        updatePinMasterDots();
-        document.getElementById('pin-master-error').textContent = '';
-        if (_pinMasterVal.length === 4) {
-            const stored = await getPIN('master');
-            if (_pinMasterVal === stored) {
-                _masterUnlocked = true;
-                document.getElementById('pin-master-screen').style.display = 'none';
-                // Buka tab master
-                _doSwitchTab('master');
-            } else {
-                document.getElementById('pin-master-error').textContent = '❌ PIN Owner salah';
-                setTimeout(() => {
-                    _pinMasterVal = '';
-                    updatePinMasterDots();
-                    document.getElementById('pin-master-error').textContent = '';
-                }, 900);
-            }
-        }
-    }
-
-    function pinMasterHapus() {
-        if (_pinMasterVal.length > 0) {
-            _pinMasterVal = _pinMasterVal.slice(0, -1);
-            updatePinMasterDots();
-        }
-    }
-
-    function tutupPinMaster() {
-        document.getElementById('pin-master-screen').style.display = 'none';
-        _pinMasterVal = '';
-        updatePinMasterDots();
-        document.getElementById('pin-master-error').textContent = '';
-    }
+    
 
     // ---- PIN SETUP & GANTI ----
     function updatePinSetupUI() {
