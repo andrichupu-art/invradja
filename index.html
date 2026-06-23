@@ -1910,7 +1910,7 @@
       const bagianEl = $('inp_bagian');
       bagianEl.value = peg.bagian;
       bagianEl.style.color = peg.bagian ? 'var(--text)' : '#7A6D55';
-      const brandsForBagian = [...new Set(MASTER.hargaList.filter(h => (!peg.bagian || h.bagian === peg.bagian) && MASTER.brand.includes(h.brand)).map(h => h.brand))].filter(Boolean).sort();
+      const brandsForBagian = [...new Set(MASTER.hargaList.filter(h => (!peg.bagian || !h.bagian || h.bagian === peg.bagian) && MASTER.brand.includes(h.brand)).map(h => h.brand))].filter(Boolean).sort();
       resetSelect('inp_brand', brandsForBagian, '-- Pilih Brand --', !nama || !brandsForBagian.length);
       resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
       $('inp_harga_display').value = '';
@@ -1922,7 +1922,7 @@
     window.onInpBrand = () => {
       const brand = $('inp_brand').value;
       const bagian = $('inp_bagian').value;
-      const pekerjaanList = [...new Set(MASTER.hargaList.filter(h => h.brand === brand && (!bagian || h.bagian === bagian) && h.pekerjaan).map(h => h.pekerjaan))].sort();
+      const pekerjaanList = [...new Set(MASTER.hargaList.filter(h => h.brand === brand && (!bagian || !h.bagian || h.bagian === bagian) && h.pekerjaan).map(h => h.pekerjaan))].sort();
       resetSelect('inp_jenis', pekerjaanList, '-- Pilih Pekerjaan --', !brand || !pekerjaanList.length);
       $('inp_harga_display').value = '';
       $('inp_qty').value = ''; $('inp_qty').disabled = true;
